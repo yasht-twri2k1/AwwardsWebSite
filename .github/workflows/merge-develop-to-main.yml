@@ -1,0 +1,30 @@
+name: Auto Merge Develop to Main
+
+on:
+  push:
+    branches:
+      - develop  # Trigger when develop is updated
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensures full history is available
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Merge develop into main
+        run: |
+          git checkout main
+          git merge develop --no-edit
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
