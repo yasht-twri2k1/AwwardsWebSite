@@ -1,15 +1,18 @@
-name: Deploy to Netlify
+name: Deploy to Netlify (D & Q Environments)
 
 on:
   push:
     branches:
-      - main  # Change if you're using a different branch
+      - develop  # Deploy to D environment on develop branch
+      - main     # Deploy to Q environment on main branch
   schedule:
-    - cron: '0 6 * * *'  # Runs deployment every day at 6 AM UTC
+    - cron: '0 6 * * *'  # Deploy to Q environment every day at 6 AM UTC
 
 jobs:
-  deploy:
+  deploy_d:
+    name: Deploy to Development (D)
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
 
     steps:
       - name: Checkout Repository
@@ -26,8 +29,34 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Deploy to Netlify
-        run: npx netlify-cli deploy --dir=dist --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
+      - name: Deploy to Netlify (D Environment)
+        run: npx netlify-cli deploy --dir=dist --prod --site=$NETLIFY_SITE_ID_D --auth=$NETLIFY_AUTH_TOKEN
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_SITE_ID_D: ${{ secrets.NETLIFY_SITE_ID_D }}
+
+  deploy_q:
+    name: Deploy to Quality (Q)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Deploy to Netlify (Q Environment)
+        run: npx netlify-cli deploy --dir=dist --prod --site=$NETLIFY_SITE_ID_Q --auth=$NETLIFY_AUTH_TOKEN
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID_Q: ${{ secrets.NETLIFY_SITE_ID_Q }}
