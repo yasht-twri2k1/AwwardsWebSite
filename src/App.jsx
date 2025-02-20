@@ -1,10 +1,12 @@
  import React from 'react'
+import Hero from './components/Hero'
  
  const App = () => {
    return (
-     <div className='text-3xl font-bold underline'>
-       Site under mainainance
-     </div>
+     <main className='relative min-h-screen w-screen overflow-x-hidden'>
+      <Hero />
+       
+     </main>
    )
  }
  
